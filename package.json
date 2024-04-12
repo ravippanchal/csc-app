@@ -1,0 +1,7 @@
+{
+  "name": "csc-app",
+  "private": true,
+  "scripts": {
+    "start": "cd packages/react-frontend && npm start"
+  }
+}
