@@ -13,9 +13,13 @@ function MyApp() {
           removeOneCharacter(index, setCharacters, characters)
         }
       />
-      <Form />
+      <Form handleSubmit={updateList} />
     </div>
   );
+
+  function updateList(person) {
+    setCharacters([...characters, person]);
+  }
 }
 
 function removeOneCharacter(index, setCharacters, characters) {
