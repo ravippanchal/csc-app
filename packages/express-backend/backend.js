@@ -78,12 +78,31 @@ app.get("/users/:id", (req, res) => {
 });
 
 const addUser = (user) => {
+  user.id = `id_${Math.random().toString(36)}`;
   users["users_list"].push(user);
   return user;
 };
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
-  addUser(userToAdd);
-  res.send();
+  if (!findUserById(userToAdd.id)) {
+    // Ensures no duplicate users based on ID
+    const newUser = addUser(userToAdd);
+    res.status(201).send(newUser);
+  } else {
+    res.status(409).send({ error: "User with this ID already exists" }); // Conflict if user exists
+  }
+
+  app.delete("/users/:id", (req, res) => {
+    const id = req.params.id;
+    const initialLength = users.users_list.length;
+    users.users_list = users.users_list.filter((user) => user.id !== id);
+
+    // Check if the length of the array has changed to determine if a user was deleted
+    if (users.users_list.length < initialLength) {
+      res.status(204).send(); // No content to send back, but indicates success
+    } else {
+      res.status(404).send({ error: "User not found" }); // No user found with the given ID
+    }
+  });
 });
