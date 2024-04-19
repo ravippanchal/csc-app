@@ -42,23 +42,29 @@ function MyApp() {
   }
   function updateList(person) {
     postUser(person)
+      .then((response) => response.json())
+      .then((data) => {
+        setCharacters([...characters, data]);
+      })
+      .catch((error) => console.error("Error creating a user:", error));
+  }
+  function removeOneCharacter(index) {
+    const id = characters[index].id;
+    fetch(`http://localhost:8000/users/${id}`, {
+      method: "DELETE",
+    })
       .then((response) => {
-        if (response.status === 201) {
-          return response.json();
-        } else {
-          throw new Error("Failed to create user");
+        if (response.status === 204) {
+          const updatedCharacters = characters.filter(
+            (character, i) => i !== index
+          );
+          setCharacters(updatedCharacters);
+        } else if (response.status === 404) {
+          console.error("User not found");
         }
       })
-      .then(() => setCharacters([...characters, person]))
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch((error) => console.error("Error deleting the user:", error));
   }
-}
-
-function removeOneCharacter(index, setCharacters, characters) {
-  const updated = characters.filter((character, i) => i !== index);
-  setCharacters(updated);
 }
 
 export default MyApp;

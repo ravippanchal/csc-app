@@ -84,25 +84,18 @@ const addUser = (user) => {
 };
 
 app.post("/users", (req, res) => {
-  const userToAdd = req.body;
-  if (!findUserById(userToAdd.id)) {
-    // Ensures no duplicate users based on ID
-    const newUser = addUser(userToAdd);
-    res.status(201).send(newUser);
+  const newUser = addUser(req.body);
+  res.status(201).send(newUser); // Send the new user object with the generated ID
+});
+
+app.delete("/users/:id", (req, res) => {
+  const id = req.params.id;
+  const initialLength = users.users_list.length;
+  users.users_list = users.users_list.filter((user) => user.id !== id);
+
+  if (initialLength === users.users_list.length) {
+    res.status(404).send({ error: "User not found" });
   } else {
-    res.status(409).send({ error: "User with this ID already exists" }); // Conflict if user exists
+    res.status(204).send();
   }
-
-  app.delete("/users/:id", (req, res) => {
-    const id = req.params.id;
-    const initialLength = users.users_list.length;
-    users.users_list = users.users_list.filter((user) => user.id !== id);
-
-    // Check if the length of the array has changed to determine if a user was deleted
-    if (users.users_list.length < initialLength) {
-      res.status(204).send(); // No content to send back, but indicates success
-    } else {
-      res.status(404).send({ error: "User not found" }); // No user found with the given ID
-    }
-  });
 });
